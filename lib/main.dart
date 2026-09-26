@@ -8,22 +8,24 @@ import 'viewmodels/product_view_model.dart';
 import 'views/home/home_view.dart';
 
 void main() {
-  runApp(const ProductCartApp());
+  WidgetsFlutterBinding.ensureInitialized();
+
+  runApp(const ShopEaseApp());
 }
 
-class ProductCartApp extends StatelessWidget {
-  const ProductCartApp({super.key});
+class ShopEaseApp extends StatelessWidget {
+  const ShopEaseApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => CartProvider(),
+          create: (_) => CartProvider()..loadCart(),
         ),
-
         ChangeNotifierProvider(
-          create: (_) => ProductViewModel(),
+          create: (_) =>
+          ProductViewModel()..loadProducts(),
         ),
       ],
       child: MaterialApp(

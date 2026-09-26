@@ -19,11 +19,10 @@ class HomeView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Column(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-             AppConstants.appName,
+              AppConstants.appName,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 21,
@@ -54,13 +53,22 @@ class HomeView extends StatelessWidget {
         ],
       ),
 
-      body: RefreshIndicator(
+      body: vm.isLoading
+          ? const Center(
+        child: CircularProgressIndicator(),
+      )
+          : vm.errorMessage != null
+          ? _buildErrorState(
+        context,
+        vm,
+      )
+          : RefreshIndicator(
         onRefresh: () async {
-          await Future.delayed(
-            const Duration(milliseconds: 500),
-          );
+          await vm.loadProducts();
         },
         child: CustomScrollView(
+          physics:
+          const AlwaysScrollableScrollPhysics(),
           slivers: [
             // ==========================================
             // SEARCH
@@ -68,7 +76,8 @@ class HomeView extends StatelessWidget {
 
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(
+                padding:
+                const EdgeInsets.fromLTRB(
                   16,
                   8,
                   16,
@@ -138,7 +147,6 @@ class HomeView extends StatelessWidget {
                               .withOpacity(0.08),
                         ),
                       ),
-
                       Padding(
                         padding:
                         const EdgeInsets.all(22),
@@ -153,25 +161,26 @@ class HomeView extends StatelessWidget {
                               style: TextStyle(
                                 color: Colors.white70,
                                 fontSize: 11,
-                                fontWeight: FontWeight.bold,
+                                fontWeight:
+                                FontWeight.bold,
                                 letterSpacing: 1.5,
                               ),
                             ),
-
                             const SizedBox(height: 8),
-
                             const Text(
                               '10% OFF',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 31,
-                                fontWeight: FontWeight.bold,
+                                fontWeight:
+                                FontWeight.bold,
                               ),
                             ),
-
-                            const Text(
-                              'on orders above ৳2000',
-                              style: TextStyle(
+                            Text(
+                              'on orders above '
+                                  '${AppConstants.currency}'
+                                  '${AppConstants.discountThreshold.toStringAsFixed(0)}',
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 13,
                               ),
@@ -211,14 +220,17 @@ class HomeView extends StatelessWidget {
               child: SizedBox(
                 height: 48,
                 child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(
+                  padding:
+                  const EdgeInsets.symmetric(
                     horizontal: 16,
                   ),
                   scrollDirection: Axis.horizontal,
-                  itemCount: vm.categories.length,
+                  itemCount:
+                  vm.categories.length,
                   separatorBuilder: (_, __) =>
                   const SizedBox(width: 8),
-                  itemBuilder: (context, index) {
+                  itemBuilder:
+                      (context, index) {
                     final category =
                     vm.categories[index];
 
@@ -229,7 +241,8 @@ class HomeView extends StatelessWidget {
                           category,
                       onTap: () {
                         context
-                            .read<ProductViewModel>()
+                            .read<
+                            ProductViewModel>()
                             .setCategory(category);
                       },
                     );
@@ -239,14 +252,15 @@ class HomeView extends StatelessWidget {
             ),
 
             // ==========================================
-            // FEATURED
+            // FEATURED PRODUCTS
             // ==========================================
 
             if (vm.searchQuery.isEmpty &&
                 vm.selectedCategory == 'All')
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
+                  padding:
+                  const EdgeInsets.fromLTRB(
                     16,
                     24,
                     16,
@@ -254,21 +268,25 @@ class HomeView extends StatelessWidget {
                   ),
                   child: Row(
                     mainAxisAlignment:
-                    MainAxisAlignment.spaceBetween,
+                    MainAxisAlignment
+                        .spaceBetween,
                     children: [
                       const Text(
                         'Featured Products',
                         style: TextStyle(
                           fontSize: 19,
-                          fontWeight: FontWeight.bold,
+                          fontWeight:
+                          FontWeight.bold,
                         ),
                       ),
                       Text(
                         '${vm.featuredProducts.length} items',
                         style: const TextStyle(
-                          color: AppColors.primary,
+                          color:
+                          AppColors.primary,
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontWeight:
+                          FontWeight.w600,
                         ),
                       ),
                     ],
@@ -286,17 +304,23 @@ class HomeView extends StatelessWidget {
                     const EdgeInsets.symmetric(
                       horizontal: 16,
                     ),
-                    scrollDirection: Axis.horizontal,
+                    scrollDirection:
+                    Axis.horizontal,
                     itemCount:
                     vm.featuredProducts.length,
-                    separatorBuilder: (_, __) =>
-                    const SizedBox(width: 12),
-                    itemBuilder: (context, index) {
+                    separatorBuilder:
+                        (_, __) =>
+                    const SizedBox(
+                      width: 12,
+                    ),
+                    itemBuilder:
+                        (context, index) {
                       return SizedBox(
                         width: 190,
                         child: ProductCard(
                           product:
-                          vm.featuredProducts[index],
+                          vm.featuredProducts[
+                          index],
                         ),
                       );
                     },
@@ -310,7 +334,8 @@ class HomeView extends StatelessWidget {
 
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(
+                padding:
+                const EdgeInsets.fromLTRB(
                   16,
                   25,
                   16,
@@ -323,52 +348,67 @@ class HomeView extends StatelessWidget {
                         'All Products',
                         style: TextStyle(
                           fontSize: 19,
-                          fontWeight: FontWeight.bold,
+                          fontWeight:
+                          FontWeight.bold,
                         ),
                       ),
                     ),
 
                     PopupMenuButton<String>(
-                      initialValue: vm.sortOption,
+                      initialValue:
+                      vm.sortOption,
                       onSelected: (value) {
                         context
-                            .read<ProductViewModel>()
-                            .setSortOption(value);
+                            .read<
+                            ProductViewModel>()
+                            .setSortOption(
+                          value,
+                        );
                       },
                       itemBuilder: (context) {
                         return const [
                           PopupMenuItem(
                             value: 'Featured',
-                            child: Text('Featured'),
+                            child:
+                            Text('Featured'),
                           ),
                           PopupMenuItem(
-                            value: 'Price: Low to High',
-                            child:
-                            Text('Price: Low to High'),
+                            value:
+                            'Price: Low to High',
+                            child: Text(
+                              'Price: Low to High',
+                            ),
                           ),
                           PopupMenuItem(
-                            value: 'Price: High to Low',
-                            child:
-                            Text('Price: High to Low'),
+                            value:
+                            'Price: High to Low',
+                            child: Text(
+                              'Price: High to Low',
+                            ),
                           ),
                           PopupMenuItem(
                             value: 'Rating',
-                            child: Text('Top Rated'),
+                            child:
+                            Text('Top Rated'),
                           ),
                         ];
                       },
                       child: Container(
                         padding:
-                        const EdgeInsets.symmetric(
+                        const EdgeInsets
+                            .symmetric(
                           horizontal: 11,
                           vertical: 8,
                         ),
-                        decoration: BoxDecoration(
+                        decoration:
+                        BoxDecoration(
                           color: Colors.white,
                           borderRadius:
-                          BorderRadius.circular(10),
+                          BorderRadius
+                              .circular(10),
                           border: Border.all(
-                            color: AppColors.border,
+                            color:
+                            AppColors.border,
                           ),
                         ),
                         child: Row(
@@ -377,7 +417,9 @@ class HomeView extends StatelessWidget {
                               Icons.sort,
                               size: 17,
                             ),
-                            const SizedBox(width: 5),
+                            const SizedBox(
+                              width: 5,
+                            ),
                             Text(
                               vm.sortOption ==
                                   'Price: Low to High'
@@ -389,7 +431,8 @@ class HomeView extends StatelessWidget {
                                   'Rating'
                                   ? 'Rating'
                                   : 'Featured',
-                              style: const TextStyle(
+                              style:
+                              const TextStyle(
                                 fontSize: 11,
                                 fontWeight:
                                 FontWeight.w600,
@@ -419,7 +462,8 @@ class HomeView extends StatelessWidget {
                       MainAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.search_off_rounded,
+                          Icons
+                              .search_off_rounded,
                           size: 65,
                           color: Colors.grey,
                         ),
@@ -428,13 +472,15 @@ class HomeView extends StatelessWidget {
                           'No products found',
                           style: TextStyle(
                             fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                            fontWeight:
+                            FontWeight.bold,
                           ),
                         ),
                         SizedBox(height: 7),
                         Text(
                           'Try another search or category.',
-                          textAlign: TextAlign.center,
+                          textAlign:
+                          TextAlign.center,
                           style: TextStyle(
                             color: Colors.grey,
                           ),
@@ -446,7 +492,8 @@ class HomeView extends StatelessWidget {
               )
             else
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(
+                padding:
+                const EdgeInsets.fromLTRB(
                   16,
                   0,
                   16,
@@ -458,7 +505,8 @@ class HomeView extends StatelessWidget {
                         (context, index) {
                       return ProductCard(
                         product:
-                        vm.filteredProducts[index],
+                        vm.filteredProducts[
+                        index],
                       );
                     },
                     childCount:
@@ -473,6 +521,49 @@ class HomeView extends StatelessWidget {
                   ),
                 ),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(
+      BuildContext context,
+      ProductViewModel vm,
+      ) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(30),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.error_outline_rounded,
+              size: 65,
+              color: AppColors.danger,
+            ),
+            const SizedBox(height: 15),
+            const Text(
+              'Unable to load products',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              vm.errorMessage!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: vm.loadProducts,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Try Again'),
+            ),
           ],
         ),
       ),
